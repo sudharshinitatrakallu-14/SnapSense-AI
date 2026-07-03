@@ -1,0 +1,41 @@
+.main {
+    background-color: #f7f9fc;
+}
+
+h1 {
+    color: #2E86DE;
+    text-align: center;
+}
+
+.stButton>button {
+    width: 100%;
+    background-color: #2E86DE;
+    color: white;
+    border-radius: 10px;
+    font-size: 16px;
+    border: none;
+    padding: 10px;
+}
+
+.stButton>button:hover {
+    background-color: #1B4F72;
+}
+
+.stDownloadButton>button {
+    width: 100%;
+    background-color: #28A745;
+    color: white;
+    border-radius: 10px;
+    border: none;
+}
+
+.stDownloadButton>button:hover {
+    background-color: #1E7E34;
+}
+
+div[data-testid="stMetric"] {
+    background-color: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+}
