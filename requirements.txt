@@ -3,7 +3,7 @@ easyocr==1.7.1
 numpy==1.26.4
 Pillow==10.4.0
 opencv-python-headless==4.10.0.84
-torch==2.12.1
-torchvision==0.27.1
+torch
+torchvision
 groq
 python-dotenv
