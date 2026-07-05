@@ -79,7 +79,10 @@ if uploaded_file is not None:
 )
 
     # OCR
-    extracted_text = extract_text(uploaded_file)
+   if "ocr_text" not in st.session_state:
+    st.session_state.ocr_text = extract_text(uploaded_file)
+
+extracted_text = st.session_state.ocr_text
 
     # Detect screenshot type
     screenshot_type = detect_screenshot_type(extracted_text)
