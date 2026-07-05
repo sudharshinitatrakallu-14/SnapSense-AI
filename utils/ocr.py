@@ -1,22 +1,12 @@
 import easyocr
-import numpy as np
-from PIL import Image
+import streamlit as st
 
-reader = None
+@st.cache_resource
+def get_reader():
+    return easyocr.Reader(['en'], gpu=False)
 
-def extract_text(uploaded_file):
-    global reader
-
-    if reader is None:
-        reader = easyocr.Reader(['en'])
-
-    image = Image.open(uploaded_file)
-    image = np.array(image)
-
-    results = reader.readtext(image)
-
-    text = ""
-    for result in results:
-        text += result[1] + "\n"
-
+def extract_text(image):
+    reader = get_reader()
+    result = reader.readtext(image, detail=0)
+    text = " ".join(result)
     return text
