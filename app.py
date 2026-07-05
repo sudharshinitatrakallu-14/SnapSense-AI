@@ -73,10 +73,10 @@ if uploaded_file is not None:
 
     # Show uploaded screenshot
     st.image(
-        uploaded_file,
-        caption="Uploaded Screenshot",
-        use_container_width=True
-    )
+    uploaded_file,
+    caption="Uploaded Screenshot",
+    width="stretch"
+)
 
     # OCR
     extracted_text = extract_text(uploaded_file)
