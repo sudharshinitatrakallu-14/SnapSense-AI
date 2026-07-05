@@ -13,14 +13,15 @@ st.set_page_config(
     page_icon="📷",
     layout="wide"
 )
+
+# --------------------------------------------------
+# SIDEBAR
+# --------------------------------------------------
 with st.sidebar:
-
     st.title("📷 SnapSense AI")
-
     st.markdown("---")
 
     st.success("Modules")
-
     st.write("✅ OCR")
     st.write("✅ Screenshot Detection")
     st.write("✅ AI Summary")
@@ -28,36 +29,18 @@ with st.sidebar:
     st.write("✅ Report Generation")
 
     st.markdown("---")
-
     st.info("Python + EasyOCR + Streamlit")
-    #st.image("logo.png", width=120)
+
 # --------------------------------------------------
 # HEADER
 # --------------------------------------------------
-st.markdown("""
-# 📷 SnapSense AI
-
-### Upload • Analyze • Understand
-
-Analyze screenshots using OCR and intelligent text extraction.
-""")
-
-st.markdown("""
-Welcome to **SnapSense AI** 🚀
-
-### Features
-- 📄 OCR Text Extraction
-- 🧠 Screenshot Type Detection
-- 🤖 AI Summary
-- 🔍 Information Extraction
-- 📊 Dashboard
-- 📥 Download Report
-""")
+st.markdown("# 📷 SnapSense AI")
+st.markdown("### Upload • Analyze • Understand")
 
 st.divider()
 
 # --------------------------------------------------
-# FILE UPLOAD
+# UPLOAD
 # --------------------------------------------------
 uploaded_file = st.file_uploader(
     "📤 Upload Screenshot",
@@ -65,38 +48,33 @@ uploaded_file = st.file_uploader(
 )
 
 # --------------------------------------------------
-# PROCESS IMAGE
+# PROCESS
 # --------------------------------------------------
 if uploaded_file is not None:
 
     st.success("✅ Screenshot uploaded successfully!")
 
-    # Show uploaded screenshot
-    st.image(
-    uploaded_file,
-    caption="Uploaded Screenshot",
-    width="stretch"
-)
+    # Show image
+    st.image(uploaded_file, caption="Uploaded Screenshot")
 
-    # OCR
-   if "ocr_text" not in st.session_state:
-    st.session_state.ocr_text = extract_text(uploaded_file)
+    # ---------------- OCR (CACHED SAFE VERSION) ----------------
+    if (
+        "ocr_text" not in st.session_state
+        or st.session_state.get("file_name") != uploaded_file.name
+    ):
+        with st.spinner("🔍 Extracting text..."):
+            st.session_state.ocr_text = extract_text(uploaded_file)
+            st.session_state.file_name = uploaded_file.name
 
-extracted_text = st.session_state.ocr_text
+    extracted_text = st.session_state.ocr_text
 
-    # Detect screenshot type
+    # ---------------- ANALYSIS ----------------
     screenshot_type = detect_screenshot_type(extracted_text)
 
-    # Summary
-    summary = generate_summary(
-        screenshot_type,
-        extracted_text
-    )
+    summary = generate_summary(screenshot_type, extracted_text)
 
-    # Extract important information
     info = extract_information(extracted_text)
 
-    # Generate report
     report = generate_report(
         screenshot_type,
         summary,
@@ -104,112 +82,61 @@ extracted_text = st.session_state.ocr_text
         extracted_text
     )
 
-    # --------------------------------------------------
-    # DASHBOARD
-    # --------------------------------------------------
+    # ---------------- DASHBOARD ----------------
     st.divider()
     st.subheader("📊 Dashboard")
 
     col1, col2, col3, col4 = st.columns(4)
 
-    with col1:
-        st.metric("📄 Lines", len(extracted_text.splitlines()))
+    col1.metric("📄 Lines", len(extracted_text.splitlines()))
+    col2.metric("📧 Emails", len(info["emails"]))
+    col3.metric("📞 Phones", len(info["phones"]))
+    col4.metric("🌐 Websites", len(info["websites"]))
 
-    with col2:
-        st.metric("📧 Emails", len(info["emails"]))
-
-    with col3:
-        st.metric("📞 Phones", len(info["phones"]))
-
-    with col4:
-        st.metric("🌐 Websites", len(info["websites"]))
-
-    st.divider()
-
-    # --------------------------------------------------
-    # SCREENSHOT ANALYSIS
-    # --------------------------------------------------
+    # ---------------- ANALYSIS ----------------
     st.subheader("🧠 Screenshot Analysis")
     st.success(f"Detected Type: {screenshot_type}")
 
-    # --------------------------------------------------
-    # SUMMARY
-    # --------------------------------------------------
+    # ---------------- SUMMARY ----------------
     st.subheader("🤖 AI Summary")
     st.info(summary)
 
-    st.divider()
+    # ---------------- INFO ----------------
+    st.subheader("🔍 Extracted Information")
 
-    # --------------------------------------------------
-    # INFORMATION EXTRACTION
-    # --------------------------------------------------
-    st.subheader("🔍 Important Information")
+    col1, col2 = st.columns(2)
 
-    left, right = st.columns(2)
-
-    with left:
-
+    with col1:
         st.markdown("### 📧 Emails")
-        if info["emails"]:
-            for email in info["emails"]:
-                st.success(email)
-        else:
-            st.info("No Email Found")
+        st.write(info["emails"] or "No Email Found")
 
-        st.markdown("### 📞 Phone Numbers")
-        if info["phones"]:
-            for phone in info["phones"]:
-                st.success(phone)
-        else:
-            st.info("No Phone Number Found")
+        st.markdown("### 📞 Phones")
+        st.write(info["phones"] or "No Phone Found")
 
         st.markdown("### 💰 Amounts")
-        if info["amounts"]:
-            for amount in info["amounts"]:
-                st.success(amount)
-        else:
-            st.info("No Amount Found")
+        st.write(info["amounts"] or "No Amount Found")
 
-    with right:
-
+    with col2:
         st.markdown("### 📅 Dates")
-        if info["dates"]:
-            for date in info["dates"]:
-                st.success(date)
-        else:
-            st.info("No Date Found")
+        st.write(info["dates"] or "No Date Found")
 
         st.markdown("### 🌐 Websites")
-        if info["websites"]:
-            for website in info["websites"]:
-                st.success(website)
-        else:
-            st.info("No Website Found")
+        st.write(info["websites"] or "No Website Found")
 
+    # ---------------- OCR TEXT ----------------
     st.divider()
-
-    # --------------------------------------------------
-    # OCR OUTPUT
-    # --------------------------------------------------
     st.subheader("📄 Extracted Text")
 
-    st.text_area(
-        "OCR Output",
-        extracted_text,
-        height=300
-    )
+    st.text_area("OCR Output", extracted_text, height=300)
 
+    # ---------------- DOWNLOAD ----------------
     st.divider()
-
-    # --------------------------------------------------
-    # DOWNLOAD REPORT
-    # --------------------------------------------------
     st.subheader("📥 Download Report")
 
     st.download_button(
-        label="📄 Download Analysis Report",
+        label="📄 Download Report",
         data=report,
-        file_name="SnapSenseAI_Report.txt",
+        file_name="SnapSense_Report.txt",
         mime="text/plain"
     )
 
