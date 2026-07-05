@@ -5,46 +5,29 @@ from utils.summarizer import generate_summary
 from utils.extractor import extract_information
 from utils.report_generator import generate_report
 
-# ---------------- PAGE CONFIG ----------------
+# ---------------- PAGE ----------------
 st.set_page_config(
     page_title="SnapSense AI",
     page_icon="📷",
     layout="wide"
 )
 
-# ---------------- SIDEBAR ----------------
-with st.sidebar:
-    st.title("📷 SnapSense AI")
-    st.markdown("---")
-
-    st.success("Modules")
-    st.write("✅ OCR")
-    st.write("✅ Detection")
-    st.write("✅ Summary")
-    st.write("✅ Extraction")
-    st.write("✅ Report")
-
-# ---------------- HEADER ----------------
 st.title("📷 SnapSense AI")
-st.subheader("Upload • Analyze • Understand")
+st.subheader("Upload → Analyze → Extract Insights")
 
 st.divider()
 
 # ---------------- UPLOAD ----------------
-uploaded_file = st.file_uploader(
-    "Upload Screenshot",
-    type=["png", "jpg", "jpeg"]
-)
+uploaded_file = st.file_uploader("Upload Screenshot", type=["png", "jpg", "jpeg"])
 
-# ---------------- MAIN LOGIC ----------------
 if uploaded_file is not None:
 
     st.success("File uploaded successfully!")
 
-    # Show image FIRST (important so it never disappears)
+    # Show image FIRST (prevents flicker)
     st.image(uploaded_file, caption="Uploaded Screenshot")
 
-    # ---------------- SAFE OCR (NO CRASH) ----------------
+    # ---------------- OCR ----------------
     if (
         "ocr_text" not in st.session_state
         or st.session_state.get("file_name") != uploaded_file.name
@@ -55,17 +38,11 @@ if uploaded_file is not None:
 
     extracted_text = st.session_state.ocr_text
 
-    # ---------------- PROCESSING ----------------
+    # ---------------- PROCESS ----------------
     screenshot_type = detect_screenshot_type(extracted_text)
     summary = generate_summary(screenshot_type, extracted_text)
     info = extract_information(extracted_text)
-
-    report = generate_report(
-        screenshot_type,
-        summary,
-        info,
-        extracted_text
-    )
+    report = generate_report(screenshot_type, summary, info, extracted_text)
 
     # ---------------- DASHBOARD ----------------
     st.divider()
@@ -86,17 +63,15 @@ if uploaded_file is not None:
     st.info(summary)
 
     st.subheader("📄 Extracted Text")
-    st.text_area("", extracted_text, height=250)
+    st.text_area("OCR Output", extracted_text, height=250)
 
     # ---------------- DOWNLOAD ----------------
-    st.subheader("📥 Report")
-
     st.download_button(
-        label="Download Report",
-        data=report,
+        "Download Report",
+        report,
         file_name="SnapSense_Report.txt",
         mime="text/plain"
     )
 
-# ---------------- FOOTER ----------------
 st.divider()
+st.caption("SnapSense AI | Built by Sudharshini")
