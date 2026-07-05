@@ -100,4 +100,3 @@ if uploaded_file is not None:
 
 # ---------------- FOOTER ----------------
 st.divider()
-st.caption("SnapSense AI | Built by Sudharshini")
